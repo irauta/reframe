@@ -1,0 +1,7 @@
+[package]
+name = "reframe"
+version = "0.1.0"
+authors = ["Ilkka Rauta <ilkka.rauta@gmail.com>"]
+
+[dependencies.regl]
+git = "https://github.com/irauta/regl.git"
