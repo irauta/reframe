@@ -4,9 +4,6 @@
 extern crate regl;
 
 #[macro_use]
-mod macros;
-
-pub mod traits;
 pub mod attribute;
 pub mod mesh;
 
