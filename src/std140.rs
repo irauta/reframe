@@ -1,75 +1,46 @@
 
-use ::uniform::{IVec2,IVec3,IVec4,UVec2,UVec3,UVec4,Vec2,Vec3,Vec4};
-
 pub const ALIGNMENT_1: u32 = 1 * 4;
 pub const ALIGNMENT_2: u32 = 2 * 4;
-pub const ALIGNMENT_3: u32 = 4 * 4;
+pub const ALIGNMENT_3: u32 = 4 * 4; // Three-component types are aligned like four-component types!
 pub const ALIGNMENT_4: u32 = 4 * 4;
 pub const ALIGNMENT_STRUCT: u32 = ALIGNMENT_4;
 pub const ALIGNMENT_ARRAY: u32 = ALIGNMENT_4;
 
-pub trait Std140 : Sized {
+pub trait Std140 {
     fn alignment() -> u32;
     fn aligned_size() -> u32;
-    fn from_buffer(buffer: &mut [u8]) -> &mut Self {
-        let size_of = ::std::mem::size_of::<Self>();
-        // Will panic is there's not enough data, keeping us "safe"
-        let buffer = &mut buffer[0..size_of];
-        let ptr = buffer.as_mut_ptr() as *mut Self;
-        unsafe { &mut *ptr }
-    }
 }
 
-impl Std140 for i32 {
-    fn alignment() -> u32 { ALIGNMENT_1 }
-    fn aligned_size() -> u32 { ALIGNMENT_1 }
-}
-impl Std140 for u32 {
-    fn alignment() -> u32 { ALIGNMENT_1 }
-    fn aligned_size() -> u32 { ALIGNMENT_1 }
-}
-impl Std140 for f32 {
-    fn alignment() -> u32 { ALIGNMENT_1 }
-    fn aligned_size() -> u32 { ALIGNMENT_1 }
-}
-/*impl Std140 for bool {
-    fn alignment() -> u32 { 4 }
-}*/
-impl Std140 for IVec2 {
-    fn alignment() -> u32 { ALIGNMENT_2 }
-    fn aligned_size() -> u32 { ALIGNMENT_2 }
-}
-impl Std140 for IVec3 {
-    fn alignment() -> u32 { ALIGNMENT_3 }
-    fn aligned_size() -> u32 { ALIGNMENT_3 }
-}
-impl Std140 for IVec4 {
-    fn alignment() -> u32 { ALIGNMENT_4 }
-    fn aligned_size() -> u32 { ALIGNMENT_4 }
-}
-impl Std140 for UVec2 {
-    fn alignment() -> u32 { ALIGNMENT_2 }
-    fn aligned_size() -> u32 { ALIGNMENT_2 }
-}
-impl Std140 for UVec3 {
-    fn alignment() -> u32 { ALIGNMENT_3 }
-    fn aligned_size() -> u32 { ALIGNMENT_3 }
-}
-impl Std140 for UVec4 {
-    fn alignment() -> u32 { ALIGNMENT_4 }
-    fn aligned_size() -> u32 { ALIGNMENT_4 }
-}
-impl Std140 for Vec2 {
-    fn alignment() -> u32 { ALIGNMENT_2 }
-    fn aligned_size() -> u32 { ALIGNMENT_2 }
-}
-impl Std140 for Vec3 {
-    fn alignment() -> u32 { ALIGNMENT_3 }
-    fn aligned_size() -> u32 { ALIGNMENT_3 }
-}
-impl Std140 for Vec4 {
-    fn alignment() -> u32 { ALIGNMENT_4 }
-    fn aligned_size() -> u32 { ALIGNMENT_4 }
+/// This module exists only because the macro defined inside it shouldn't leak to library users.
+mod impl_traits {
+    use ::uniform::{IVec2,IVec3,IVec4,UVec2,UVec3,UVec4,Vec2,Vec3,Vec4};
+    use super::*;
+    macro_rules! simple_std140_impl {
+        ($uniform_type:ty : $alignment:expr) => (
+            impl Std140 for $uniform_type {
+                fn alignment() -> u32 { $alignment }
+                fn aligned_size() -> u32 { $alignment }
+            }
+        )
+    }
+    simple_std140_impl!(i32 : ALIGNMENT_1);
+    simple_std140_impl!(u32 : ALIGNMENT_1);
+    simple_std140_impl!(f32 : ALIGNMENT_1);
+    simple_std140_impl!(bool : ALIGNMENT_1);
+
+    // Missing: BVec{2,3,4}
+
+    simple_std140_impl!(IVec2 : ALIGNMENT_2);
+    simple_std140_impl!(IVec3 : ALIGNMENT_3);
+    simple_std140_impl!(IVec4 : ALIGNMENT_4);
+
+    simple_std140_impl!(UVec2 : ALIGNMENT_2);
+    simple_std140_impl!(UVec3 : ALIGNMENT_3);
+    simple_std140_impl!(UVec4 : ALIGNMENT_4);
+
+    simple_std140_impl!(Vec2 : ALIGNMENT_2);
+    simple_std140_impl!(Vec3 : ALIGNMENT_3);
+    simple_std140_impl!(Vec4 : ALIGNMENT_4);
 }
 
 
@@ -81,6 +52,38 @@ macro_rules! std140 {
     }) => (
         pub struct $struct_name<'a> {
             buffer: &'a mut[u8],
+        }
+
+        impl<'a> $crate::std140::Std140 for $struct_name<'a> {
+            fn alignment() -> u32 {
+                $crate::std140::ALIGNMENT_STRUCT
+            }
+
+            fn aligned_size() -> u32 {
+                use $crate::std140::ALIGNMENT_STRUCT;
+                use $crate::uniform::align_up_to;
+                let meta = std140_layout!( { $($fields)+ } );
+                align_up_to(meta.size, ALIGNMENT_STRUCT)
+            }
+
+            /*fn from_buffer(buffer: &mut [u8]) -> &mut Self {
+                //let foo = &mut $struct_name { buffer: buffer };
+                //foo
+                unimplemented!();
+            }*/
+        }
+
+        impl<'a> $crate::uniform::MapBytesMut<'a> for $struct_name<'a> {
+            type UniformType = $struct_name<'a>;
+            type LayoutInfoType = ();
+            fn map_bytes_mut(
+                buffer: &'a mut [u8],
+                _: Self::LayoutInfoType
+            ) -> Self::UniformType where Self::UniformType: 'a {
+                $struct_name {
+                    buffer: buffer,
+                }
+            }
         }
 
         impl<'a> $struct_name<'a> {
@@ -96,19 +99,6 @@ macro_rules! std140 {
 
             std140!( fields { $($fields)+ } { $($fields)+ } );
 
-        }
-
-        impl<'a> $crate::std140::Std140 for $struct_name<'a> {
-            fn alignment() -> u32 {
-                $crate::std140::ALIGNMENT_STRUCT
-            }
-
-            fn aligned_size() -> u32 {
-                use $crate::std140::ALIGNMENT_STRUCT;
-                use $crate::uniform::align_up_to;
-                let meta = std140_layout!( { $($fields)+ } );
-                align_up_to(meta.size, ALIGNMENT_STRUCT)
-            }
         }
     );
 
@@ -148,20 +138,34 @@ macro_rules! std140 {
     // The matchers that actually produce code:
 
     // Array field.
-    ( array { $field_name:ident : [ $field_type:ty ; $array_size:expr ] } { $($all_fields:tt)+ }) => (
-        pub fn $field_name(index: usize) {
-            #![allow(unused_variables)]
+    ( array {
+            $field_name:ident : [ $field_type:ty ; $array_size:expr ]
+        } { $($all_fields:tt)+ }
+    ) => (
+        pub fn $field_name(&mut self, index: usize)
+                -> <$field_type as $crate::uniform::MapBytesMut>::UniformType {
+            use $crate::std140::ALIGNMENT_4;
+            use $crate::uniform::align_up_to;
             let meta = std140_layout!( { $($all_fields)+ } );
-            let array_field = stringify!($field_name:ident : [ $field_type:ty ; $array_size:expr ]);
+            let offset = meta.fields.$field_name.start as usize;
+            let element_size = align_up_to(meta.fields.$field_name.size, ALIGNMENT_4) as usize;
+            if index >= $array_size {
+                panic!("Uniform array access out of bounds!");
+            }
+            let offset = offset + element_size * index;
+            let mut buffer = &mut self.buffer[offset..];
+            <$field_type as $crate::uniform::MapBytesMut>::map_bytes_mut(buffer, ())
         }
     );
 
-    // Regular fields.
+    // Regular field.
     ( field { $field_name:ident : $field_type:ty  } { $($all_fields:tt)+ }) => (
-        pub fn $field_name() {
-            #![allow(unused_variables)]
+        pub fn $field_name(&mut self)
+                -> <$field_type as $crate::uniform::MapBytesMut>::UniformType {
             let meta = std140_layout!( { $($all_fields)+ } );
-            let field = stringify!($field_name:ident : $field_type:ty);
+            let offset = meta.fields.$field_name.start as usize;
+            let mut buffer = &mut self.buffer[offset..];
+            <$field_type as $crate::uniform::MapBytesMut>::map_bytes_mut(buffer, ())
         }
     );
 }

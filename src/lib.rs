@@ -12,6 +12,7 @@ pub mod mesh;
 
 pub use regl::load_with;
 
+use ::uniform::{Vec2,Vec3,Vec4};
 std140!(pub struct Foo140 {
     pub a: f32,
     pub b: [Vec4; 4],
