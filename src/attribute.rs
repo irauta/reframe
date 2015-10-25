@@ -14,6 +14,16 @@ pub trait NamedBaseAttributes {
     fn attributes() -> Vec<(String, BaseAttribute)>;
 }
 
+pub trait MapNameToAttributeIndex {
+    fn map<T: AsRef<str>>(&self, name: T) -> Option<u32>;
+}
+
+impl<'a, N: AsRef<str>> MapNameToAttributeIndex for &'a [(N, u32)] {
+    fn map<T: AsRef<str>>(&self, name: T) -> Option<u32> {
+        self.iter().find(|&x| x.0.as_ref() == name.as_ref()).map(|x| x.1)
+    }
+}
+
 #[repr(C,packed)]
 #[derive(Debug,Clone,Copy,Default)]
 pub struct Vec2Type<T: Debug + Clone + Copy + Default> {

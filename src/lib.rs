@@ -10,6 +10,7 @@ pub mod uniform;
 #[macro_use]
 pub mod std140;
 pub mod mesh;
+pub mod vertex_array;
 
 pub use regl::load_with;
 
