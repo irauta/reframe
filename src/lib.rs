@@ -3,6 +3,7 @@
 
 extern crate regl;
 
+pub mod error;
 #[macro_use]
 pub mod attribute;
 pub mod uniform;
@@ -12,15 +13,19 @@ pub mod mesh;
 
 pub use regl::load_with;
 
-use ::uniform::{Vec2,Vec3,Vec4};
-std140!(pub struct Foo140 {
-    pub a: f32,
-    pub b: [Vec4; 4],
-    pub c: Vec3,
-    pub d: Vec2
-});
+pub type ReframeResult<T> = Result<T, ReframeError>;
 
-#[test]
-fn foo() {
-    Foo140::dump_meta();
+pub use error::ReframeError;
+
+#[cfg(test)]
+mod tests {
+
+    use ::uniform::{Vec2,Vec3,Vec4};
+    std140!(pub struct Foo140 {
+        pub a: f32,
+        pub b: [Vec4; 4],
+        pub c: Vec3,
+        pub d: Vec2
+    });
+
 }
