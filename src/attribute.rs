@@ -2,6 +2,7 @@
 use std::clone::Clone;
 use std::fmt::Debug;
 use std::marker::Copy;
+use std::default::Default;
 use ::regl::VertexAttributeType;
 
 pub trait VertexComponent {
@@ -14,8 +15,8 @@ pub trait NamedBaseAttributes {
 }
 
 #[repr(C,packed)]
-#[derive(Debug,Clone,Copy)]
-pub struct Vec2Type<T: Debug + Clone + Copy> {
+#[derive(Debug,Clone,Copy,Default)]
+pub struct Vec2Type<T: Debug + Clone + Copy + Default> {
     pub x: T,
     pub y: T,
 }
@@ -31,8 +32,8 @@ pub type Vec2f32 = Vec2Type<f32>;
 pub type Vec2f64 = Vec2Type<f64>;
 
 #[repr(C,packed)]
-#[derive(Debug,Clone,Copy)]
-pub struct Vec3Type<T: Debug + Clone + Copy> {
+#[derive(Debug,Clone,Copy,Default)]
+pub struct Vec3Type<T: Debug + Clone + Copy + Default> {
     pub x: T,
     pub y: T,
     pub z: T,
@@ -49,8 +50,8 @@ pub type Vec3f32 = Vec3Type<f32>;
 pub type Vec3f64 = Vec3Type<f64>;
 
 #[repr(C,packed)]
-#[derive(Debug,Clone,Copy)]
-pub struct Vec4Type<T: Debug + Clone + Copy> {
+#[derive(Debug,Clone,Copy,Default)]
+pub struct Vec4Type<T: Debug + Clone + Copy + Default> {
     pub x: T,
     pub y: T,
     pub z: T,
@@ -68,8 +69,8 @@ pub type Vec4f32 = Vec4Type<f32>;
 pub type Vec4f64 = Vec4Type<f64>;
 
 #[repr(C,packed)]
-#[derive(Debug,Clone,Copy)]
-pub struct RgbType<T: Debug + Clone + Copy> {
+#[derive(Debug,Clone,Copy,Default)]
+pub struct RgbType<T: Debug + Clone + Copy + Default> {
     pub r: T,
     pub g: T,
     pub b: T,
@@ -86,8 +87,8 @@ pub type Rgbf32 = RgbType<f32>;
 pub type Rgbf64 = RgbType<f64>;
 
 #[repr(C,packed)]
-#[derive(Debug,Clone,Copy)]
-pub struct RgbaType<T: Debug + Clone + Copy> {
+#[derive(Debug,Clone,Copy,Default)]
+pub struct RgbaType<T: Debug + Clone + Copy + Default> {
     pub r: T,
     pub g: T,
     pub b: T,
