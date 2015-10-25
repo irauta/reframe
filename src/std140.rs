@@ -65,12 +65,6 @@ macro_rules! std140 {
                 let meta = std140_layout!( { $($fields)+ } );
                 align_up_to(meta.size, ALIGNMENT_STRUCT)
             }
-
-            /*fn from_buffer(buffer: &mut [u8]) -> &mut Self {
-                //let foo = &mut $struct_name { buffer: buffer };
-                //foo
-                unimplemented!();
-            }*/
         }
 
         impl<'a> $crate::uniform::MapBytesMut<'a> for $struct_name<'a> {
