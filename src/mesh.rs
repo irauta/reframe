@@ -1,5 +1,5 @@
 
-/*use ::std::rc::Rc;
+use ::std::rc::Rc;
 use ::regl::{VertexArray,PrimitiveMode,IndexType};
 
 pub enum DrawType {
@@ -31,4 +31,3 @@ pub struct IndexedDrawParameters {
     /// Not sure if this field belongs to this structure.
     pub vertex_array: Rc<VertexArray>
 }
-*/
