@@ -63,7 +63,7 @@ macro_rules! std140 {
             fn aligned_size() -> u32 {
                 use $crate::std140::ALIGNMENT_STRUCT;
                 use $crate::uniform::align_up_to;
-                let meta = std140_layout!( { $($fields)+ } );
+                let meta = std140!( layout { $($fields)+ } );
                 align_up_to(meta.size, ALIGNMENT_STRUCT)
             }
         }
@@ -83,7 +83,7 @@ macro_rules! std140 {
 
         impl<'a> $struct_name<'a> {
             pub fn new(buffer: &'a mut [u8]) -> $crate::ReframeResult<$struct_name<'a>> {
-                let meta = std140_layout!( { $($fields)+ } );
+                let meta = std140!( layout { $($fields)+ } );
                 if meta.size as usize > buffer.len() {
                     Err($crate::ReframeError::TooSmallBufferError)
                 } else {
@@ -94,7 +94,7 @@ macro_rules! std140 {
             }
 
             pub fn dump_meta() {
-                println!("{:#?}", std140_layout!( { $($fields)+ } ))
+                println!("{:#?}", std140!( layout { $($fields)+ } ))
             }
 
             std140!( fields { $($fields)+ } { $($fields)+ } );
@@ -146,7 +146,7 @@ macro_rules! std140 {
                 -> <$field_type as $crate::uniform::MapBytesMut>::UniformType {
             use $crate::std140::ALIGNMENT_4;
             use $crate::uniform::align_up_to;
-            let meta = std140_layout!( { $($all_fields)+ } );
+            let meta = std140!( layout { $($all_fields)+ } );
             let offset = meta.fields.$field_name.start as usize;
             let element_size = align_up_to(meta.fields.$field_name.size, ALIGNMENT_4) as usize;
             if index >= $array_size {
@@ -162,19 +162,17 @@ macro_rules! std140 {
     ( field { $field_name:ident : $field_type:ty  } { $($all_fields:tt)+ }) => (
         pub fn $field_name(&mut self)
                 -> <$field_type as $crate::uniform::MapBytesMut>::UniformType {
-            let meta = std140_layout!( { $($all_fields)+ } );
+            let meta = std140!( layout { $($all_fields)+ } );
             let offset = meta.fields.$field_name.start as usize;
             let mut buffer = &mut self.buffer[offset..];
             <$field_type as $crate::uniform::MapBytesMut>::map_bytes_mut(buffer, ())
         }
     );
-}
 
-// Helper macro, not meant to be invoked directly. Returns a FieldInfo struct that describes the
-// layout and size of the type, based on the fields of the struct.
-#[macro_export]
-macro_rules! std140_layout {
-    ( { $($fields:tt)+ } ) => ({
+    // The matchers below used to belong to a separate macro that produces std140 layout struct,
+    // but was combined into one to make macro_use(std140) work properly.
+
+    ( layout { $($fields:tt)+ } ) => ({
         use $crate::uniform::*;
         use $crate::std140::*;
         #[derive(Default,Debug)]
@@ -187,9 +185,9 @@ macro_rules! std140_layout {
             fields: FieldStruct,
             size: u32,
         }
-        std140_layout!( field_struct { $($fields)+ } );
+        std140!( field_struct { $($fields)+ } );
         let mut meta = <MetaStruct as Default>::default();
-        std140_layout!( fill_meta(meta) { $($fields)+ } );
+        std140!( fill_meta(meta) { $($fields)+ } );
         meta
     });
 
@@ -206,15 +204,15 @@ macro_rules! std140_layout {
             $($rest:tt)+
         }
     ) => (
-        std140_layout!( fill_array_meta($meta) { $field_name : [ $field_type ; $array_len ] })
-        std140_layout!( fill_meta($meta) { $($rest)+ } )
+        std140!( fill_array_meta($meta) { $field_name : [ $field_type ; $array_len ] })
+        std140!( fill_meta($meta) { $($rest)+ } )
     );
     // Array field base case.
     ( fill_meta($meta:ident) {
             pub $field_name:ident : [ $field_type:ty ; $array_len:expr ]
         }
     ) => (
-        std140_layout!( fill_array_meta($meta) { $field_name : [ $field_type ; $array_len ] } );
+        std140!( fill_array_meta($meta) { $field_name : [ $field_type ; $array_len ] } );
     );
 
     // Regular field matcher, recursive case.
@@ -222,15 +220,15 @@ macro_rules! std140_layout {
             pub $field_name:ident : $field_type:ty, $($rest:tt)+
         }
     ) => (
-        std140_layout!( fill_field_meta($meta) { $field_name : $field_type  })
-        std140_layout!( fill_meta($meta) { $($rest)+ } )
+        std140!( fill_field_meta($meta) { $field_name : $field_type  })
+        std140!( fill_meta($meta) { $($rest)+ } )
     );
     // Regular field base case.
     ( fill_meta($meta:ident) {
             pub $field_name:ident : $field_type:ty
         }
     ) => (
-        std140_layout!( fill_field_meta($meta) { $field_name : $field_type  } );
+        std140!( fill_field_meta($meta) { $field_name : $field_type  } );
     );
 
     // The matchers that actually produce code:
@@ -256,6 +254,20 @@ macro_rules! std140_layout {
         $meta.fields.$field_name.start = start;
         $meta.fields.$field_name.size = size;
         $meta.size = start + size;
+    });
+
+}
+
+#[cfg(test)]
+mod tests {
+    #![allow(dead_code)]
+
+    use ::uniform::{Vec2,Vec3,Vec4};
+    std140!(pub struct Foo140 {
+        pub a: f32,
+        pub b: [Vec4; 4],
+        pub c: Vec3,
+        pub d: Vec2
     });
 
 }
