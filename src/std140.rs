@@ -44,6 +44,7 @@ mod impl_traits {
 }
 
 
+#[macro_export]
 macro_rules! std140 {
     // The main matcher doesn't really look into the content of the struct definition.
     // The "fields" won't end up being actual fields after all.
@@ -171,6 +172,7 @@ macro_rules! std140 {
 
 // Helper macro, not meant to be invoked directly. Returns a FieldInfo struct that describes the
 // layout and size of the type, based on the fields of the struct.
+#[macro_export]
 macro_rules! std140_layout {
     ( { $($fields:tt)+ } ) => ({
         use $crate::uniform::*;

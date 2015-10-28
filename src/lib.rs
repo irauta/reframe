@@ -1,13 +1,9 @@
 
-#![macro_use]
-
 extern crate regl;
 
 pub mod error;
-#[macro_use]
 pub mod attribute;
 pub mod uniform;
-#[macro_use]
 pub mod std140;
 pub mod mesh;
 pub mod vertex_array;

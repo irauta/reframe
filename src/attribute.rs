@@ -175,6 +175,7 @@ pub struct BaseAttribute {
 }
 
 
+#[macro_export]
 macro_rules! vertex_type {
     (
         pub struct $struct_name:ident {
