@@ -3,6 +3,8 @@ use std::clone::Clone;
 use std::fmt::Debug;
 use std::marker::Copy;
 use std::default::Default;
+use ::ReframeResult;
+use ::ReframeError;
 use ::regl::VertexAttributeType;
 
 pub trait VertexComponent {
@@ -15,13 +17,23 @@ pub trait NamedBaseAttributes {
 }
 
 pub trait MapNameToAttributeIndex {
-    fn map<T: AsRef<str>>(&self, name: T) -> Option<u32>;
+    fn map_name<T: AsRef<str>>(&self, name: T) -> Option<u32>;
 }
 
 impl<'a, N: AsRef<str>> MapNameToAttributeIndex for &'a [(N, u32)] {
-    fn map<T: AsRef<str>>(&self, name: T) -> Option<u32> {
+    fn map_name<T: AsRef<str>>(&self, name: T) -> Option<u32> {
         self.iter().find(|&x| x.0.as_ref() == name.as_ref()).map(|x| x.1)
     }
+}
+
+pub fn named_attributes_to_indexed_attributes<M: MapNameToAttributeIndex>(
+        named_attributes: &[(String, BaseAttribute)],
+        mapper: &M
+    ) -> ReframeResult<Vec<(u32, BaseAttribute)>> {
+    named_attributes.iter()
+        .map(|attr| mapper.map_name(&attr.0).map(|index| (index, attr.1)))
+        .map(|attr| attr.ok_or(ReframeError::AttributeMappingError))
+        .collect()
 }
 
 #[repr(C,packed)]

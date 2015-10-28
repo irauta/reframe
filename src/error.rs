@@ -6,6 +6,7 @@ use ::regl::ReglError;
 #[derive(Debug)]
 pub enum ReframeError {
     TooSmallBufferError,
+    AttributeMappingError,
     ReglError(ReglError),
 }
 
@@ -25,6 +26,7 @@ impl Error for ReframeError {
     fn description(&self) -> &str {
         match *self {
             ReframeError::TooSmallBufferError => "Byte buffer was not large enough to be mapped into a uniform type",
+            ReframeError::AttributeMappingError => "Could not find attribute index for named attribute",
             ReframeError::ReglError(ref regl_error) => regl_error.description(),
         }
     }

@@ -1,14 +1,13 @@
 
 use ::regl::VertexArray;
 use ::ReframeResult;
-use ::attribute::NamedBaseAttributes;
-use ::attribute::MapNameToAttributeIndex;
+use ::attribute::BaseAttribute;
 
-pub fn make_simple_vertex_array<V: NamedBaseAttributes, M: >(
+pub fn make_simple_vertex_array<V: Copy>(
         vertices: &[V],
         indices: Option<&[u16]>,
-        attribute_indices: &M
+        attributes: &[(u32, BaseAttribute)]
     ) -> ReframeResult<VertexArray> {
-    let attributes = <V as NamedBaseAttributes>::attributes();
+
     unimplemented!()
 }
