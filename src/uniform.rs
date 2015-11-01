@@ -9,7 +9,7 @@
 pub trait MapBytesMut<'a> {
     type UniformType: 'a;
     type LayoutInfoType;
-    fn map_bytes_mut(buffer: &'a mut [u8], layout_info: Self::LayoutInfoType) -> Self::UniformType where Self::UniformType: 'a;
+    fn map_bytes_mut(buffer: &'a mut [u8], layout_info: Self::LayoutInfoType) -> Self::UniformType;
 }
 
 // Deal with booleans later...
