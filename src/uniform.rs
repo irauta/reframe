@@ -9,42 +9,40 @@
 pub trait MapBytesMut<'a> {
     type UniformType: 'a;
     type LayoutInfoType;
-    fn map_bytes_mut(
-        buffer: &'a mut [u8],
-        layout_info: Self::LayoutInfoType
-    ) -> Self::UniformType where Self::UniformType: 'a;
+    fn map_bytes_mut(buffer: &'a mut [u8], layout_info: Self::LayoutInfoType) -> Self::UniformType where Self::UniformType: 'a;
 }
 
 // Deal with booleans later...
-/* #[repr(C, packed)]
-pub struct BVec2 {
-    pub x: bool,
-    padding1: [u8; 3],
-    pub y: bool,
-    padding2: [u8; 3],
-}
+// #[repr(C, packed)]
+// pub struct BVec2 {
+// pub x: bool,
+// padding1: [u8; 3],
+// pub y: bool,
+// padding2: [u8; 3],
+// }
+//
+// #[repr(C, packed)]
+// pub struct BVec3 {
+// pub x: bool,
+// padding1: [u8; 3],
+// pub y: bool,
+// padding2: [u8; 3],
+// pub z: bool,
+// padding3: [u8; 3],
+// }
+//
+// #[repr(C, packed)]
+// pub struct BVec4 {
+// pub x: bool,
+// padding1: [u8; 3],
+// pub y: bool,
+// padding2: [u8; 3],
+// pub z: bool,
+// padding3: [u8; 3],
+// pub w: bool,
+// padding4: [u8; 3],
+// }
 
-#[repr(C, packed)]
-pub struct BVec3 {
-    pub x: bool,
-    padding1: [u8; 3],
-    pub y: bool,
-    padding2: [u8; 3],
-    pub z: bool,
-    padding3: [u8; 3],
-}
-
-#[repr(C, packed)]
-pub struct BVec4 {
-    pub x: bool,
-    padding1: [u8; 3],
-    pub y: bool,
-    padding2: [u8; 3],
-    pub z: bool,
-    padding3: [u8; 3],
-    pub w: bool,
-    padding4: [u8; 3],
-} */
 
 #[repr(C)]
 pub struct IVec2 {
@@ -109,7 +107,8 @@ pub struct Vec4 {
     pub w: f32,
 }
 
-// Not implemented, only available on OpenGL 4.0 or with ARB_gpu_shader_fp64 extension
+// Not implemented, only available on OpenGL 4.0 or with ARB_gpu_shader_fp64
+// extension
 // pub struct DVec2;
 // pub struct DVec3;
 // pub struct DVec4;

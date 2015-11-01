@@ -11,9 +11,10 @@ pub trait Std140 {
     fn aligned_size() -> u32;
 }
 
-/// This module exists only because the macro defined inside it shouldn't leak to library users.
+/// This module exists only because the macro defined inside it shouldn't leak
+/// to library users.
 mod impl_traits {
-    use ::uniform::{IVec2,IVec3,IVec4,UVec2,UVec3,UVec4,Vec2,Vec3,Vec4};
+    use uniform::{IVec2, IVec3, IVec4, UVec2, UVec3, UVec4, Vec2, Vec3, Vec4};
     use super::*;
     macro_rules! simple_std140_impl {
         ($uniform_type:ty : $alignment:expr) => (
@@ -262,7 +263,7 @@ macro_rules! std140 {
 mod tests {
     #![allow(dead_code)]
 
-    use ::uniform::{Vec2,Vec3,Vec4};
+    use uniform::{Vec2, Vec3, Vec4};
     std140!(pub struct Foo140 {
         pub a: f32,
         pub b: [Vec4; 4],

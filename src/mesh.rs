@@ -1,6 +1,6 @@
 
-use ::std::rc::Rc;
-use ::regl::{VertexArray,PrimitiveMode,IndexType};
+use std::rc::Rc;
+use regl::{VertexArray, PrimitiveMode, IndexType};
 
 pub enum DrawType {
     /// Non-indexed drawing.
@@ -29,5 +29,5 @@ pub struct IndexedDrawParameters {
     pub instance_count: u32,
     /// Vertex array that has the vertices and indices to draw from.
     /// Not sure if this field belongs to this structure.
-    pub vertex_array: Rc<VertexArray>
+    pub vertex_array: Rc<VertexArray>,
 }

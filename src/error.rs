@@ -1,7 +1,7 @@
 
 use std::error::Error;
-use std::fmt::{self,Display};
-use ::regl::ReglError;
+use std::fmt::{self, Display};
+use regl::ReglError;
 
 #[derive(Debug)]
 pub enum ReframeError {
@@ -25,8 +25,10 @@ impl Display for ReframeError {
 impl Error for ReframeError {
     fn description(&self) -> &str {
         match *self {
-            ReframeError::TooSmallBufferError => "Byte buffer was not large enough to be mapped into a uniform type",
-            ReframeError::AttributeMappingError => "Could not find attribute index for named attribute",
+            ReframeError::TooSmallBufferError =>
+                "Byte buffer was not large enough to be mapped into a uniform type",
+            ReframeError::AttributeMappingError =>
+                "Could not find attribute index for named attribute",
             ReframeError::ReglError(ref regl_error) => regl_error.description(),
         }
     }

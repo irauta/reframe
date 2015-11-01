@@ -3,9 +3,9 @@ use std::clone::Clone;
 use std::fmt::Debug;
 use std::marker::Copy;
 use std::default::Default;
-use ::ReframeResult;
-use ::ReframeError;
-use ::regl::VertexAttributeType;
+use ReframeResult;
+use ReframeError;
+use regl::VertexAttributeType;
 
 pub trait VertexComponent {
     fn attribute_type() -> VertexAttributeType;
@@ -31,9 +31,9 @@ pub fn named_attributes_to_indexed_attributes<M: MapNameToAttributeIndex>(
         mapper: &M
     ) -> ReframeResult<Vec<(u32, BaseAttribute)>> {
     named_attributes.iter()
-        .map(|attr| mapper.map_name(&attr.0).map(|index| (index, attr.1)))
-        .map(|attr| attr.ok_or(ReframeError::AttributeMappingError))
-        .collect()
+                    .map(|attr| mapper.map_name(&attr.0).map(|index| (index, attr.1)))
+                    .map(|attr| attr.ok_or(ReframeError::AttributeMappingError))
+                    .collect()
 }
 
 #[repr(C,packed)]
