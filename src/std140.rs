@@ -53,7 +53,7 @@ macro_rules! std140 {
         $($fields:tt)+
     }) => (
         pub struct $struct_name<'a> {
-            buffer: &'a mut[u8],
+            buffer: &'a mut[f32],
         }
 
         impl<'a> $crate::std140::Std140 for $struct_name<'a> {
@@ -69,11 +69,11 @@ macro_rules! std140 {
             }
         }
 
-        impl<'a> $crate::uniform::MapBytesMut<'a> for $struct_name<'a> {
+        impl<'a> $crate::uniform::MapBufferMut<'a> for $struct_name<'a> {
             type UniformType = $struct_name<'a>;
             type LayoutInfoType = ();
-            fn map_bytes_mut(
-                buffer: &'a mut [u8],
+            fn map_buffer_mut(
+                buffer: &'a mut [f32],
                 _: Self::LayoutInfoType
             ) -> Self::UniformType where Self::UniformType: 'a {
                 $struct_name {
@@ -144,7 +144,7 @@ macro_rules! std140 {
         } { $($all_fields:tt)+ }
     ) => (
         pub fn $field_name(&mut self, index: usize)
-                -> <$field_type as $crate::uniform::MapBytesMut>::UniformType {
+                -> <$field_type as $crate::uniform::MapBufferMut>::UniformType {
             use $crate::std140::ALIGNMENT_4;
             use $crate::uniform::align_up_to;
             let meta = std140!( layout { $($all_fields)+ } );
@@ -155,18 +155,18 @@ macro_rules! std140 {
             }
             let offset = offset + element_size * index;
             let mut buffer = &mut self.buffer[offset..];
-            <$field_type as $crate::uniform::MapBytesMut>::map_bytes_mut(buffer, ())
+            <$field_type as $crate::uniform::MapBufferMut>::map_buffer_mut(buffer, ())
         }
     );
 
     // Regular field.
     ( field { $field_name:ident : $field_type:ty  } { $($all_fields:tt)+ }) => (
         pub fn $field_name(&mut self)
-                -> <$field_type as $crate::uniform::MapBytesMut>::UniformType {
+                -> <$field_type as $crate::uniform::MapBufferMut>::UniformType {
             let meta = std140!( layout { $($all_fields)+ } );
             let offset = meta.fields.$field_name.start as usize;
             let mut buffer = &mut self.buffer[offset..];
-            <$field_type as $crate::uniform::MapBytesMut>::map_bytes_mut(buffer, ())
+            <$field_type as $crate::uniform::MapBufferMut>::map_buffer_mut(buffer, ())
         }
     );
 
