@@ -83,7 +83,7 @@ macro_rules! std140 {
         }
 
         impl<'a> $struct_name<'a> {
-            pub fn new(buffer: &'a mut [u8]) -> $crate::ReframeResult<$struct_name<'a>> {
+            pub fn new(buffer: &'a mut [f32]) -> $crate::ReframeResult<$struct_name<'a>> {
                 let meta = std140!( layout { $($fields)+ } );
                 if meta.size as usize > buffer.len() {
                     Err($crate::ReframeError::TooSmallBufferError)
